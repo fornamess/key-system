@@ -1,107 +1,84 @@
--- 📌 Хранение данных о ключах (в реальной системе, данные можно хранить на сервере или в базе данных)
-local keyData = {
-    [""] = {
-        activationTime = os.time(),  -- Время активации ключа
-        usedUserIds = {},  -- Список использованных UserId
-        maxDevices = 90  -- Максимум 90 устройств
-    },
-    -- Добавьте другие ключи с данными
+-- 📌 Список сгенерированных ключей
+local validKeys = {
+    "XbR9fZx2VjC3wD5k",
+    "HtY1gLs9N0e7JqFp",
+    "Dm5K2zVgQzZ0Iu4a",
+    "OeL1dN3Xk8TtMbJr",
+    "YpQ8VhR7Fi2N6mG4C",
+    "Z4xBd2z5gO9MwJtP",
+    "TnV2wFxK7Cz0Hk8U",
+    "JfP9D8RkTzLwE5n1q",
+    "Bv1XzM6Nz9L2JtFw",
+    "GzC7TiO5p0Fw4k3X",
+    "Wb3Hz6YdP2kLz7Jq",
+    "R9Xs5fKi7B0cV3nW",
+    "D8GpJ4m5V6kLtHzT",
+    "M2Qd0FbPz8LxK1V9",
+    "C0J6pLsR8kF3m5Vn",
+    "Ht3A7zF5rP9VkLz2",
+    "ZxX7B3tV5pLd2n0K",
+    "Q4Vz1X5m8T0Fw9Jp",
+    "K6y0D5fX9Zg7JmLn",
+    "U2tB9F8p5C0wK3jZ",
+    "Q2pY6wK4LzX7V8gM",
+    "X1t0LgB3Pz9F7Cm6",
+    "V7Y8sF0aN2K9mX5b",
+    "J3z0FwQ6D9VpL2R5",
+    "K0X1mD8V2gF9s7zT",
+    "F6L3p5R9zK0YwVm1",
+    "J4n7L8kV3x2FwQ0T",
+    "T5Q0V2D3K9nLzFwX",
+    "Zx5B0g8J1yR2p3N7",
+    "P1tZ9L4xV7Y0kF3m",
+    "B0mF2R6V1x7Qn8Ls",
+    "F7wK5pX2t9Y0nL3Z",
+    "Y3L8gD9V0F1tQ5X7",
+    "Z5F2X0q9L6k8p7B1",
+    "G2L9B0V5pX1F7w4N",
+    "R7Y0t5L3Q2K8X9V1",
+    "J5z3V0K9Y2wT7L1P",
+    "X8F0p9B1N7tL2Y6v",
+    "K6J5T2m8X1V9FwL0",
+    "D4Z9L1X0V2T5p6mJ",
+    "L1Y7Z3Q0V5B2kF9X",
+    "P6X7g5V2D0K1L8T3",
+    "T2Y9X0m5V7K3L1Fw",
+    "B8g5V6Y0L1t9J3N2",
+    "K1J9X3V2p5L8Fw0m",
+    "Q5X0t6L7V9B3m2Y1",
+    "D8F5V9L3p0X1k7T2",
+    "L9V0J2m8Q1F5X6B7",
+    "F4Y0V5m7B9L2X3kT",
+    "J6tX2V5Y0B8K7n9L"
 }
 
--- 📌 Функция для получения UserId игрока (вместо HWID)
-local function getUserId()
-    return game.Players.LocalPlayer.UserId  -- Получаем уникальный идентификатор игрока
-end
+-- 📌 Переменная для ввода ключа
+local script_key = ""  -- Поставьте сюда значение, введённое игроком
 
--- 📌 Проверка ключа
+-- 📌 Функция для проверки ключа
 local function checkKey(inputKey)
-    local playerId = getUserId()  -- Получаем UserId текущего игрока
-    local currentTime = os.time()
-
-    if keyData[inputKey] then
-        local keyInfo = keyData[inputKey]
-        
-        -- Проверка срока действия ключа (30 дней)
-        if currentTime - keyInfo.activationTime > 30 * 24 * 60 * 60 then
-            return false, "Ключ просрочен!"  -- Ключ просрочен
+    -- Проверяем, существует ли ключ в списке валидных ключей
+    for _, key in ipairs(validKeys) do
+        if inputKey == key then
+            return true  -- Ключ правильный
         end
-
-        -- Проверка, если ключ уже использовался на 90 устройствах
-        if #keyInfo.usedUserIds >= keyInfo.maxDevices then
-            return false, "ERROR: You are a regular buyer. Buyers have access to run only 90 accounts. Buy 1 more key or buy Prem Buyer."
-        end
-
-        -- Проверка, если этот ключ уже использовался на этом UserId
-        for _, userId in ipairs(keyInfo.usedUserIds) do
-            if userId == playerId then
-                return false, "Ключ уже использовался на вашем аккаунте!"  -- Ключ уже использован
-            end
-        end
-
-        -- Добавляем UserId в список использованных
-        table.insert(keyInfo.usedUserIds, playerId)
-
-        return true, "Ключ действителен!"
-    else
-        return false, "Неверный ключ!"  -- Ключ не найден
     end
+    return false  -- Ключ неправильный
 end
-
--- 📌 Генерация интерфейса для ввода ключа
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game.Players.LocalPlayer.PlayerGui
-
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 150)
-frame.Position = UDim2.new(0.5, -150, 0.5, -75)
-frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-frame.Parent = screenGui
-
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 0.2, 0)
-titleLabel.Position = UDim2.new(0, 0, 0, 0)
-titleLabel.Text = "Enter Key:"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.BackgroundTransparency = 1
-titleLabel.TextSize = 24
-titleLabel.TextScaled = true
-titleLabel.Parent = frame
-
-local keyInput = Instance.new("TextBox")
-keyInput.Size = UDim2.new(0, 260, 0, 50)
-keyInput.Position = UDim2.new(0, 20, 0, 40)
-keyInput.Text = ""
-keyInput.PlaceholderText = "Enter your key here"
-keyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyInput.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-keyInput.TextSize = 24
-keyInput.Parent = frame
-
-local submitButton = Instance.new("TextButton")
-submitButton.Size = UDim2.new(0, 260, 0, 40)
-submitButton.Position = UDim2.new(0, 20, 0, 100)
-submitButton.Text = "Submit"
-submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-submitButton.BackgroundColor3 = Color3.fromRGB(0, 128, 0)
-submitButton.TextSize = 24
-submitButton.Parent = frame
 
 -- 📌 Функция для обработки ввода ключа
-submitButton.MouseButton1Click:Connect(function()
-    local inputKey = keyInput.Text  -- Получаем текст из поля ввода
+local function processKey()
+    local inputKey = script_key  -- Получаем введённый ключ
 
     -- Проверка ключа
-    local isValid, message = checkKey(inputKey)
+    local isValid = checkKey(inputKey)
     if isValid then
-        print(message)
-        screenGui:Destroy()  -- Убираем интерфейс, если ключ правильный
-
-        -- Здесь идет основной код скрипта, который будет выполняться после правильного ключа
-        -- Пример:
-        runAsync(function()
-            -- Основной код...
-        end)
+        print("Ключ принят! Скрипт продолжает выполнение.")
+        -- Здесь можно добавить основной код, который будет выполняться после проверки ключа
     else
-        game.Players.LocalPlayer:Kick(message)  -- Отключаем игрока с сообщением
+        game.Players.LocalPlayer:Kick("Неверный ключ! Выключение скрипта.")  -- Кикаем игрока с ошибкой
     end
-end)
+end
+
+-- Запуск процесса проверки ключа
+processKey()
